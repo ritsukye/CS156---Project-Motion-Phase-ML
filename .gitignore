@@ -1,5 +1,6 @@
-out/segmented_windows.csv
+out/
 
+.claude
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
