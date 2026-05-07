@@ -1,0 +1,13 @@
+Split,Class,Precision,Recall,F1-Score,Support
+5-Fold,accel,0.3088,0.2958,0.3022,71
+5-Fold,jump_takeoff,0.2195,0.1304,0.1636,69
+5-Fold,landing,0.2979,0.2545,0.2745,55
+5-Fold,sprint_mid,0.2708,0.1884,0.2222,69
+5-Fold,start_run,0.3182,0.4078,0.3574,103
+5-Fold,stop,0.3281,0.433,0.3733,97
+LOSO,accel,0.2131,0.1831,0.197,71
+LOSO,jump_takeoff,0.0755,0.058,0.0656,69
+LOSO,landing,0.1562,0.0909,0.1149,55
+LOSO,sprint_mid,0.1481,0.1159,0.1301,69
+LOSO,start_run,0.2174,0.2913,0.249,103
+LOSO,stop,0.1905,0.2474,0.2152,97

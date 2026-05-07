@@ -86,7 +86,7 @@ Manually annotating motion phases from continuous sensor streams is time-consumi
 The dataset comprises 1{,}500 timestamped observations from five track-and-field athletes (A001--A005), each contributing 300 samples from a single 30-second recording session at 10\,Hz. Seven sensor channels are available: Heart\_Rate, Acc\_X/Y/Z, and Gyro\_X/Y/Z. Samples are annotated across six balanced motion-phase classes ({\raise.17ex\hbox{$\scriptstyle\sim$}}16.7\% each): Accel, Jump\_Takeoff, Landing, Sprint\_Mid, Start\_Run, and Stop. No demographic metadata is available, which limits generalisation claims across age and sex groups.
 
 \subsection{Report Structure}
-Section~\ref{sec:litreview} reviews related literature on wearable motion classification. Section~\ref{sec:DATA} details the methodology across six tasks: dataset exploration, signal exploration, preprocessing, segmentation, feature engineering, and modelling. Section~\ref{sec:EVALUATION} presents and discusses results including test-set accuracy, cross-validation comparison, window size analysis, per-class metrics, confusion matrices, and error analysis. Section~\ref{sec:CONCLUSION} concludes with a summary of findings, limitations, and future directions.
+Section~\ref{sec:litreview} reviews related literature on wearable motion classification. Section~\ref{sec:DATA} details the methodology across six tasks: dataset exploration, signal exploration, preprocessing, segmentation, feature engineering, and modelling. Section~\ref{sec:results_discussion} presents the consolidated results and discussion, including test-set accuracy, cross-validation comparison, window size analysis, per-class metrics, confusion matrices, and error analysis. Section~\ref{sec:CONCLUSION} concludes with a summary of findings, limitations, and future directions.
 
 
 
@@ -212,7 +212,7 @@ different users and conditions.
 
 \subsection{Frequency-Domain Analysis for Sensor Signals}
 
-Chen et al.~\cite{11306882} investigated methods for improving frequency 
+A study on frequency-domain interpolation investigated methods for improving frequency 
 estimation accuracy using frequency-domain interpolation applied to Fast 
 Fourier Transform (FFT) outputs. Their approach enhances frequency 
 resolution in short, high-speed signals, where standard FFT methods may 
@@ -224,29 +224,14 @@ activity recognition, and its practical benefit depends on how heavily
 frequency-domain features are used within the classification pipeline.
 
 
-\subsection{Scikit-learn: Machine Learning in Python}
-Pedregosa et al. \cite{scikit-learn} introduced scikit-learn as an open-source machine learning library for Python, providing efficient implementations of classical ML algorithms, including classification, regression, clustering, and model selection tools. The library was designed around a consistent API, making it easy to swap models and build pipelines. It was evaluated across multiple benchmark datasets, demonstrating competitive performance with minimal code. A limitation is that scikit-learn does not natively support GPU acceleration, making it slower than deep learning frameworks for large datasets. In our project, scikit-learn was the primary library used to implement and tune all nine classical models, including Random Forest, SVM, KNN, Decision Tree, Naive Bayes, AdaBoost, Gradient Boosting, and HistGradientBoosting.
-
-\subsection{XGBosst: A Scalable Tree Boosting System}
-Chen and Guestrin \cite{chen2016xgboost} introduced XGBoost as a scalable and regularized gradient boosting framework that builds trees sequentially, where each tree corrects errors of the previous one. Key innovations include regularization terms to prevent overfitting, parallel computation for speed, and built-in handling of missing values. The method was evaluated on multiple benchmark datasets and Kaggle competitions, achieving state-of-the-art results on tabular data. A limitation is that XGBoost requires careful hyperparameter tuning and can overfit on small datasets. In our project, XGBoost achieved 52\% accuracy and 0.52 F1-Macro on the motion phase classification task.
-
-\subsection{Random Forests}
-Breiman \cite{breiman2001random} introduced Random Forests as an ensemble learning method that constructs multiple decision trees during training and outputs the class that is the mode of the individual trees' predictions. The key idea is that combining many decorrelated trees reduces variance without increasing bias. The method was evaluated on several benchmark datasets achieving competitive accuracy while remaining robust to overfitting. A limitation is that Random Forests can be computationally expensive with large numbers of trees and high-dimensional data. In our project, Random Forest achieved 53\% accuracy on the motion phase classification task, making it one of the stronger classical models.
-
-\subsection{Support-Vector Networks}
-Cortes and Vapnik \cite{cortes1995svm} proposed Support Vector Machines (SVM) as a supervised learning method that finds the optimal hyperplane separating classes in high-dimensional feature space using a kernel trick. The RBF kernel was shown to handle non-linearly separable data effectively by projecting features into higher dimensions. The method was evaluated on binary classification tasks, achieving strong generalization even with small training sets. A limitation is sensitivity to kernel and regularization parameter selection. In our project, SVM-RBF achieved 55\% accuracy, the second highest among all models, demonstrating strong discrimination between motion phases in the engineered feature space.
-
-\subsection{Greedy Function Approximation: A Gradient Boosting Machine}
-Friedman \cite{friedman2001gbm} introduced Gradient Boosting Machines as a general functional gradient descent framework that builds additive models in a stage-wise fashion, fitting each new tree to the residual errors of the previous ensemble. The method was shown to achieve strong predictive performance on both regression and classification tasks across multiple benchmark datasets. Key innovations include the use of shrinkage (learning rate) and subsampling to improve generalization. A limitation is that gradient boosting is sensitive to hyperparameters and can overfit if the number of trees is too large relative to the dataset size. In our project, both Gradient Boosting and HistGradientBoosting variants were implemented, achieving 38\% and 46\% accuracy, respectively, on the motion phase classification task.
-
-\subsection{A Decision-Theoretic Generalization of Online Learning and Application to Boosting}
-Freund and Schapire \cite{freund1997adaboost} proposed AdaBoost as a boosting algorithm that combines multiple weak learners into a strong classifier by iteratively reweighting misclassified samples. Each subsequent weak learner focuses more on previously misclassified examples, progressively improving overall classification performance. The method was evaluated on binary classification tasks, demonstrating that even slightly better than chance weak learners can produce a strong ensemble. A limitation is sensitivity to noisy data and outliers since misclassified samples receive increasingly large weights. In our project, AdaBoost achieved 41\% accuracy on the six-class motion phase classification task, performing moderately below the top ensemble methods.
+\subsection{Machine learning models relevant to this project}
+Classical supervised learners and tree ensembles are the common baselines for time-series windowed-feature pipelines. Libraries such as scikit-learn provide a consistent API for implementing SVMs, decision trees, Random Forests and boosting variants, making them suitable for rapid experimentation~\cite{scikit-learn}. Random Forests combine many decorrelated trees to reduce variance and are robust on moderate-sized tabular feature sets, while gradient-boosted trees (e.g., XGBoost) often deliver state-of-the-art results on structured data but require careful hyperparameter tuning to avoid overfitting~\cite{breiman2001random,chen2016xgboost,friedman2001gbm}. Support Vector Machines with RBF kernels remain competitive on small-to-moderate datasets due to their strong regularisation properties, though they are sensitive to kernel and penalty choices~\cite{cortes1995svm}. Boosting algorithms such as AdaBoost can improve weak learners but are more sensitive to noisy labels and outliers~\cite{freund1997adaboost}. Deep sequence models (CNNs, LSTMs, GRUs) excel when large labeled time-series datasets are available and can learn hierarchical temporal features directly from raw windows, but they demand more data and compute~\cite{9144538,10689691}. For this project we combined both paradigms (tree ensembles, SVM, and a small MLP) because the engineered-feature, windowed representation suits classical models and the dataset size limits deep model gains; the literature therefore motivates our model choices while highlighting their typical trade-offs in accuracy, robustness, and tuning effort.
 
 
 
 
 \subsection{Summary}
-Overall, prior work supports several key design decisions in our pipeline. Sliding window segmentation is a standard approach for transforming time-series data into model-ready features. Validation strategy plays a critical role, with LOSO providing a more realistic estimate of cross-subject generalization than K-Fold. Window size selection is highly task-dependent and must be tuned carefully. Finally, feature selection and sensor fusion are both important for improving model performance, particularly when working with wearable biosensor data.
+Overall, the literature consistently shows that wearable motion recognition works best when raw sensor streams are converted into windowed feature representations and evaluated with subject-independent validation. On benchmark datasets such as WISDM and smartwatch activity corpora, deep models like CNNs, LSTMs, GRUs, and BiGRUs have achieved high $k$-fold accuracy, but studies also report that $k$-fold can overestimate performance because windows from the same subject appear in both training and test sets, making LOSO a more realistic protocol for cross-subject generalisation~\cite{10962074,9144538}. Related work on fitness-exercise IMU data and sports monitoring shows that time-domain and frequency-domain features, combined with classical models such as kNN, SVM, Random Forest, and boosting methods, can perform strongly on structured sensor data, although their performance depends heavily on sensor placement, window size, and the amount of subject variability in the dataset~\cite{Vitali2020,11264792,10689691}. Studies on feature selection and sensor fusion further show that reducing feature redundancy and combining inertial with physiological signals can improve accuracy and computational efficiency, but they also note limits from noisy labels, controlled-lab datasets, and sensitivity to hyperparameters or outliers~\cite{bennasar2022significant,gilmore2024fusion,freund1997adaboost,breiman2001random,cortes1995svm,chen2016xgboost,friedman2001gbm,scikit-learn}. Taken together, these papers motivate our use of sliding-window segmentation, per-athlete normalisation, consensus-based feature ranking, and both classical and neural models, while also highlighting the main challenge in this project: reliable generalisation to unseen athletes.
 
 
 
@@ -266,7 +251,6 @@ values were detected across any channel or label column. No duplicate rows
 were found. All five athletes are present with equal representation (300 rows
 each). Event labels were normalised to lowercase for consistency.
 
-\subsubsection{Summary Table}
 A summary of the key dataset properties is given in~\autoref{tab:DATASET}.
 
 \begin{table}[h!]
@@ -450,7 +434,7 @@ This section describes the sliding window approach used to segment the continuou
 Consecutive runs of identical labels were analysed per athlete to characterise the temporal structure of the annotations. The median consecutive block length was 1 row (0.1\,s) and the maximum was 6 rows (0.6\,s). Labels transition nearly every row, meaning any window longer than 0.1\,s will span multiple event types and receive a noisy majority label. This rapid label switching is the primary source of label noise throughout the pipeline.
 
 \subsubsection{Sliding Window Sweep}
-A unified window size sweep was conducted using the tuned Random Forest with the top 20 consensus-selected features, evaluated under both Stratified 5-Fold CV and LOSO CV~\cite{10962074}. Ten window sizes from 0.2\,s to 2.0\,s in 0.2\,s steps were evaluated~\cite{10689691}. For each window size, average label purity was also recorded as a measure of label noise introduced by the sliding window. Full sweep results are reported in Section~\ref{sec:EVALUATION}.
+A unified window size sweep was conducted using the tuned Random Forest with the top 20 consensus-selected features, evaluated under both Stratified 5-Fold CV and LOSO CV~\cite{10962074}. Ten window sizes from 0.2\,s to 2.0\,s in 0.2\,s steps were evaluated~\cite{10689691}. For each window size, average label purity was also recorded as a measure of label noise introduced by the sliding window. Full sweep results are reported in Section~\ref{sec:results_discussion}.
 
 \subsubsection{Window Size Selection and Justification}
 $W = 1.0$\,s was selected for three reasons: (a) it exceeds the maximum observed label block length (0.6\,s), ensuring each window can capture at least one complete phase; (b) it yields 580 windows (116 per athlete), the largest stable sample count before per-class windows become too few to support reliable CV; (c) label purity at 1.0\,s (0.344) offers the best purity--sample-count trade-off across all sizes tested. The label assigned to each window is determined by majority vote over the event labels of its samples. The full configuration is summarised in Table~\ref{tab:window-config}.
@@ -620,9 +604,9 @@ The network uses two hidden blocks, each consisting of a fully-connected (Dense)
 
 
 
-\section{Evaluation}
-\label{sec:EVALUATION}
-This section evaluates the full motion phase classification pipeline. We first report held-out test set results after tuning (4.1), then compare the ANN against classical models (4.2), followed by cross-validation results under both standard and LOSO protocols (4.3--4.4). We then analyse the effect of window size (4.5), per-class metrics (4.6), confusion matrices (4.7), error patterns (4.8), and system integration (4.9).
+\section{Results \& Discussion}
+\label{sec:results_discussion}
+This section consolidates the full motion phase classification results and their interpretation. It begins with held-out test-set performance after tuning, then compares the ANN against classical models, followed by cross-validation results under both standard and LOSO protocols. It then analyses window size effects, per-class metrics, confusion matrices, error patterns, and system integration before closing with a synthesis of the main limitations and takeaways.
 
 \subsection{Post-Tuning Test Set Results}
 After hyperparameter tuning, each model was evaluated on the held-out 20\% test set (116 windows) that was never seen during training or cross-validation. Table~\ref{tab:testresults} reports accuracy, macro-averaged precision, recall, and F1-score. MLP achieved the highest test accuracy (0.319), closely followed by SVM-RBF (0.310). Notably, SVM-RBF edges out MLP on F1-macro (0.313 vs.\ 0.312), suggesting its per-class predictions are slightly more balanced. AdaBoost stands out with a very low precision (0.081) despite reasonable recall, indicating it over-predicts a single majority class.
@@ -667,25 +651,6 @@ A positive value indicates 5-Fold outperforms LOSO for that model. All models sh
 
 \subsection{LOSO Evaluation: All Models}
 Under Leave-One-Athlete-Out (LOSO) cross-validation, each fold holds out one of the five athletes entirely, and the scaler is refit on the remaining four. This is the more realistic evaluation since it directly tests generalisation to an unseen subject. LOSO accuracy is substantially lower for all models; XGBoost achieved the best LOSO score (0.206), only marginally above the six-class chance level of 0.167. This confirms that the models are largely learning athlete-specific patterns rather than generalisable motion signatures. Table~\ref{tab:model_results} summarises both CV strategies for all seven models.
-
-\begin{table}[H]
-\centering
-\small
-\caption{\textbf{Tuned model accuracy under 5-Fold CV and LOSO CV.}\label{tab:model_results}}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Model} & \textbf{5-Fold Acc} & \textbf{5-Fold Std} & \textbf{LOSO Acc} & \textbf{LOSO Std} \\
-\midrule
-\rowcolor{LightBlue} Random Forest & 0.3039 & 0.0590 & 0.1811 & 0.0585 \\
-XGBoost       & 0.2888 & 0.0234 & 0.2056 & 0.0414 \\
-\rowcolor{LightBlue} SVM-RBF       & 0.2866 & 0.0530 & 0.1755 & 0.0502 \\
-MLP           & 0.2738 & 0.0416 & 0.1898 & 0.0159 \\
-\rowcolor{LightBlue} Decision Tree & 0.2348 & 0.0727 & 0.1896 & 0.0422 \\
-Naive Bayes   & 0.2306 & 0.0498 & 0.1396 & 0.0332 \\
-\rowcolor{LightBlue} AdaBoost      & 0.2241 & 0.0183 & 0.1596 & 0.0521 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Window Size Comparison}
 
@@ -756,10 +721,7 @@ Error analysis focuses on LOSO results since 5-Fold CV can underestimate errors 
 For full system integration, a prediction function was implemented so that new raw sensor recordings can be classified end-to-end without manual preprocessing. The function accepts a raw dataframe, applies the same windowing and z-score normalisation pipeline used during training, extracts the 20 consensus features, and passes the result to the saved best-model object for class prediction. This allows the pipeline to be reused on future athlete recordings without retraining. A known limitation is that the current integration was validated on the same cleaned dataset used for training rather than a truly independent recording, making it a consistency check rather than a deployment test.
 
 
-\section{Results \& Discussion}
-\label{sec:DISCUSSION}
-
-\subsection{Overall Performance}
+\subsection{Overall Performance and Synthesis}
 The best LOSO accuracy of 20.56\% (XGBoost) sits only marginally above the six-class random baseline of 16.7\%. All seven models exceed chance under 5-Fold CV, but LOSO performance confirms that learned representations do not transfer reliably to unseen athletes. This is consistent with a small dataset exhibiting high label noise from sliding-window assignment over rapidly-transitioning event labels.
 
 \subsection{5-Fold vs LOSO Gap}
@@ -792,7 +754,20 @@ Results are constrained by several factors. First, the dataset is synthetically 
 \subsection{Future Work}
 Collecting real wearable sensor data with motion-capture ground truth would be the most impactful next step. Sensor-level low-pass filtering (e.g.\ Butterworth, 4\,Hz cutoff) on accelerometer and gyroscope channels should be evaluated before feature extraction. Retuning hyperparameters with LOSO as the inner-loop criterion would optimise models for cross-subject generalisation. Sequence-based architectures (LSTM, GRU, Conv1D) operating on the 3D reshaped tensors prepared in Section~\ref{sec:MODEL} are a natural extension, as they can exploit temporal dependencies across timesteps that hand-crafted features cannot capture.
 
+\footnotesize
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography}
+\normalsize
+
+\appendix
+
+\section{Technical Notes}
+\label{app:technical}
+
+Key implementation details not covered in the main text are noted here. All code was written in Python 3 using scikit-learn~\cite{scikit-learn}, XGBoost~\cite{chen2016xgboost}, and Keras/TensorFlow. The notebook was executed in a single session; random seeds were fixed at \texttt{random\_state=42} throughout to ensure reproducibility. Feature extraction, model training, and evaluation are encapsulated in modular functions to allow re-execution on new data without modification of the pipeline logic.
+
 \section{Member Contributions}
+\label{app:contributions}
 
 \begin{table}[H]
 \centering
@@ -810,18 +785,6 @@ Nurislam Saliev & Modeling                           & Task 6: Classical models:
 \end{tabularx}
 \caption{Team member task assignments and contributions.\label{tab:contributions}}
 \end{table}
-
-\footnotesize
-\bibliographystyle{IEEEtran}
-\bibliography{bibliography}
-\normalsize
-
-\appendix
-
-\section{Technical Notes}
-\label{app:technical}
-
-Key implementation details not covered in the main text are noted here. All code was written in Python 3 using scikit-learn~\cite{scikit-learn}, XGBoost~\cite{chen2016xgboost}, and Keras/TensorFlow. The notebook was executed in a single session; random seeds were fixed at \texttt{random\_state=42} throughout to ensure reproducibility. Feature extraction, model training, and evaluation are encapsulated in modular functions to allow re-execution on new data without modification of the pipeline logic.
 
 
 \end{document}

@@ -1,4 +1,51 @@
-out/
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ind
+*.ilg
+*.toc
+*.out
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.run.xml
+*.nav
+*.snm
+*.xdv
+*.bcf
+
+# latexmk / build files
+latexmk.log
+
+# minted cache
+_minted-*/
+
+# Compiled PDFs (project-specific)
+
+
+# Generated images used only at build-time
+images/*.pdf
+images/*.png
+images/*.jpg
+
+# Temporary and editor files
+*~
+*.bak
+*.swp
+.DS_Store
+
+# Optional: ignore raw or large datasets (uncomment if desired)
+# 01_motionphase/data/*.csv
+# /data/out/
+
+
+out/ 
+
 
 .claude
 # Byte-compiled / optimized / DLL files
